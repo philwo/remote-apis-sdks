@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 ########################################################################
 # Check that all Go files have been gofmt'd.
@@ -13,10 +13,17 @@ gofiles=$(git diff --cached --name-only --diff-filter=ACM | grep '\.go$')
 # Precommit hook to rebuild generated go code. Fails if building or
 # copying the files fails.
 ########################################################################
-bazelisk build //go/api/command:command_go_proto //go/pkg/fakes/auxpb:auxiliary_metadata_go_proto
-GEN_CMD_PATHS=("go/api/command/command.pb.go" "go/pkg/fakes/auxpb/auxiliary_metadata.pb.go")
+bazelisk build \
+    //go/api/command:command_go_proto \
+    //go/api/credshelper:credshelper_go_proto \
+    //go/pkg/fakes/auxpb:auxiliary_metadata_go_proto
+GEN_CMD_PATHS=(
+    "go/api/command/command.pb.go"
+    "go/api/credshelper/credshelper.pb.go"
+    "go/pkg/fakes/auxpb/auxiliary_metadata.pb.go"
+)
 for path in "${GEN_CMD_PATHS[@]}"; do
-    echo $path "$(find $(bazelisk info bazel-bin) -path "*/${path}")"
-    cp -f "$(find $(bazelisk info bazel-bin) -path "*/${path}")" "${path}"
+    echo "$path" "$(find "$(bazelisk info bazel-bin)" -path "*/${path}")"
+    cp -f "$(find "$(bazelisk info bazel-bin)" -path "*/${path}")" "${path}"
     git add "${path}"
 done
